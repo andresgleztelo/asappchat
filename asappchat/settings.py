@@ -41,16 +41,13 @@ DJANGO_APPS = (
     'django.contrib.staticfiles',
 )
 
-PROJECT_APPS = (
-    'chats',
-    'users'
-)
-
 OTHER_APPS = (
+    'chats',
+    'users',
     'ws4redis'
 )
 
-INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS + OTHER_APPS
+INSTALLED_APPS = DJANGO_APPS + OTHER_APPS
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
