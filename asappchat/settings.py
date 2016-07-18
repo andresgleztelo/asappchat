@@ -46,7 +46,11 @@ PROJECT_APPS = (
     'users'
 )
 
-INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS
+OTHER_APPS = (
+    'ws4redis'
+)
+
+INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS + OTHER_APPS
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -67,6 +71,9 @@ LOGIN_URL = '/users/login/'
 
 ROOT_URLCONF = 'asappchat.urls'
 
+WEBSOCKET_URL = '/ws/'
+WS4REDIS_EXPIRE = 7200
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -78,6 +85,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.core.context_processors.static',
+                'ws4redis.context_processors.default'
             ],
         },
     },

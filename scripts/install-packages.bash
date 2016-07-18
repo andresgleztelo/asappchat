@@ -6,3 +6,4 @@ pip install uwsgi
 pip install mysql
 pip install mysqlclient
 pip install redis
+pip install django-websocket-redis
