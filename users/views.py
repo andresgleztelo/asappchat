@@ -6,6 +6,9 @@ from django.template import Context, loader
 
 
 def get_login_page(request):
+    if request.user.is_authenticated():
+        return redirect('chats.views.home')
+
     template = loader.get_template('users/login.html')
     context = Context()
     context.update(csrf(request))
