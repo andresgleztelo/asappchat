@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+
+<style>
+
+html, body {
+  height: 100%;
+  overflow: auto;
+  overflow-y: hidden;
+  margin: 0px;
+}
+.conversations {
+  width: 390px;
+  min-height: 100%;
+  border-right: 1px solid #bcbcbc;
+  overflow: auto;
+  float: left;
+}
+.conversations-heading, .chat-area-heading {
+  text-align: center;
+  margin-top: 16px;
+  height: 43px;
+  border-bottom: 1px solid #e6e6e6;
+  position: relative;
+}
+.conversations-heading-text {
+  font-size: 20px;
+  font-weight: 500;
+  padding-top: 1px;
+}
+.compose-msg-icon {
+  background-image: url(https://static.xx.fbcdn.net/rsrc.php/v2/yW/r/egQiTHBJdiN.png);
+  background-repeat: no-repeat;
+  background-size: auto;
+  background-position: 0 -2142px;
+  height: 32px;
+  min-width: 32px;
+  width: 32px;
+  font-size: 14px;
+  position: absolute;
+  right: 10px;
+  top: -4px;
+  cursor: pointer;
+}
+
+.chat-area {
+  height: 100%;
+  width: 52%;
+  margin-left: 391px;
+  margin-top: -17px;
+  padding-top: 17px;
+  border-right: 1px solid #e6e6e6;
+  display: none;
+}
+.chat-area-heading {
+  text-align: left;
+  padding-left: 18px;
+}
+
+label {
+  color: #a1a1a1;
+  font-family: "Helvetica Neue", "Segoe UI", Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.28;
+  overflow: auto;
+  text-rendering: optimizeLegibility;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+}
+input {
+  outline: 0;
+  -webkit-font-smoothing: antialiased;
+  font-weight: normal;
+  width: 274px;
+  font-family: "Helvetica Neue", "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 15px;
+  line-height: 20px;
+  border: none;
+  display: inline-block;
+  margin: 0;
+  vertical-align: middle;
+  margin-top: -3px;
+  margin-left: 6px;
+  -webkit-font-smoothing: antialiased;
+}
+.sending-to {
+  margin-top: 16px;
+  padding-top: 3px;
+}
+
+.selected-participant-background {
+  background: #cbe6fe;
+  border-radius: 3px;
+  cursor: default;
+  line-height: 20px;
+  margin: 1px 3px 1px 2px;
+  padding: 2px 6px;
+  text-align: center;
+  display: none;
+}
+.selected-participant-text {
+  color: #0084ff;
+  font-size: 16px;
+  line-height: 20px;
+}
+
+.chat-input-area {
+  height: 60px;
+  border-top: 1px solid #e6e6e6;
+  position: fixed;
+  bottom: 0;
+  width: 52%;
+  display: none;
+}
+.chat-content-input {
+  margin: 20px 0px 0px 19px;
+  width: 83%;
+}
+
+.chats {
+  margin-top: 35px;
+  overflow: auto;
+  overflow-y: scroll;
+  max-height: 670px;
+}
+.chat-container {
+  overflow: auto;
+  margin-bottom: 14px;
+}
+.chat span {
+  font-family: "Helvetica Neue", "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.28;
+  overflow: auto;
+  text-rendering: optimizeLegibility;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+}
+.chat {
+  padding: 10px;
+  border-radius: 20px;
+}
+.chat.to-user {
+  float: right;
+  margin: 0px 43px 10px 43px;
+  background-color: #0084ff;
+}
+.chat.to-user span {
+  color: #fff;
+}
+.chat.from-user {
+  float: left;
+  margin: 0px 43px 10px 43px;
+  background-color: #f1f0f0;
+}
+.chat.from-user span {
+  color: #000;
+}
+
+.conversations-container {
+  overflow-y: scroll;
+}
+.conversation {
+  text-align: center;
+  padding-top: 24px;
+  height: 49px;
+  position: relative;
+  cursor: pointer;
+}
+.conversation.selected {
+  background-color: #f3f3f3;
+}
+.avatar {
+  position: absolute;;
+  margin-top: -13px;
+  margin-left: 24px;
+}
+.avatar img {
+  border-radius: 50%;
+}
+.conversation-divider {
+  background-color: #e6e6e6;
+  height: 1px;
+  position: absolute;
+  bottom: 0px;
+  width: 92%;
+  left: 8%;
+}
+
+.logout {
+  background: #fff;
+  color: #0084ff;
+  font-size: 14px;
+  font-weight: normal;
+  align-items: center;
+  border: none;
+  box-shadow: none;
+  display: flex;
+  margin-left: auto;
+  margin-right: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: none;
+  white-space: nowrap;
+  font-family: "Helvetica Neue", "Segoe UI", Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  cursor: pointer;
+  position: absolute;
+  top: 8px;
+  right: 13px;
+  text-decoration: none;
+}
+
+
+</style>
+</head>
+<body>
+
+<div class="conversations">
+  <div class="conversations-heading">
+    <div class="conversations-heading-text">Conversations</div>
+    <div class="compose-msg-icon"></div>
+  </div>
+
+  <div class="conversations-container">
+    {% for conversation in conversations %}
+    <div id="{{ conversation.conversation_id }}" class="conversation" data-participant="{{ conversation.username }}">
+      <div class="avatar"><img src="https://scontent-iad3-1.xx.fbcdn.net/v/t1.0-1/c29.0.100.100/p100x100/1379841_10150004552801901_469209496895221757_n.jpg?oh=f785ec8ab10b6ffdc50dafdeb2edbda3&amp;oe=582DE024" width="50" height="50" alt="" class="img"></div>
+      <span>{{ conversation.username }}</span>
+      <div class="conversation-divider"></div>
+    </div>
+    {% endfor %}
+    <!-- <div id="otheruser" class="conversation">
+      <div class="avatar"><img src="https://scontent-iad3-1.xx.fbcdn.net/v/t1.0-1/c29.0.100.100/p100x100/1379841_10150004552801901_469209496895221757_n.jpg?oh=f785ec8ab10b6ffdc50dafdeb2edbda3&amp;oe=582DE024" width="50" height="50" alt="" class="img"></div>
+      <span>otheruser</span>
+      <div class="conversation-divider"></div>
+    </div> -->
+  </div>
+</div>
+
+<div class="chat-area">
+  <div class="chat-area-heading">
+    <div class="sending-to">
+      <label>To:</label>
+      <input id="target-participant" class="target-participant-input-style" type="text" placeholder="Type the username of a person"
+        name="target-participant" />
+      <span class="selected-participant-background"><span class="selected-participant-text"></span></span>
+
+    </div>
+  </div>
+  <div class="chats">
+    <!-- <div class="chat-container"><div class="chat to-user"><span>Testing</span></div></div>
+    <div class="chat from-user"><span>Testing</span></div> -->
+  </div>
+  <div class="chat-input-area">
+    <input id="send-chat" class="chat-content-input" type="text" placeholder="Type a message..." name="chat-content" />
+  </div>
+</div>
+
+<a href="{% url 'users.views.log_user_out' %}" class="logout">Logout</div>
+
+<script>
+$(function(){
+  (function handleSelectTargetParticipant(){
+    $('.compose-msg-icon').on('click', function(){
+      resetChatsArea();
+    });
+  })();
+
+  (function handleMessageComposing(){
+    $('#target-participant').off('keypress').on('keypress', function(e){
+      if(e.which == 13 && $(this).val().trim() != '') { // Enter was pressed
+        var username = $(this).val();
+        $(this)
+          .hide()
+          .siblings('.selected-participant-background')
+            .find('.selected-participant-text')
+              .text(username)
+              .end()
+            .show();
+
+        $('.chat-input-area')
+          .find('.chat-content-input')
+            .val('')
+            .focus()
+            .end()
+          .show();
+
+        selectConversationWithParticipant(username)
+      }
+    });
+  })();
+
+  (function handleSendChat(){
+    $('#send-chat').off('keypress').on('keypress', function(e){
+      if(e.which == 13 && $(this).val().trim() != '') {
+        var content = $(this).val();
+        var chatBubbleHtml = '<div class="chat-container"><div class="chat to-user"><span>' + content +
+                             '</span></div></div>';
+
+        var $chats = $('.chats');
+        $chats.append(chatBubbleHtml).scrollTop($chats[0].scrollHeight);
+
+        postChat($('.selected').attr('id'), content);
+
+        $(this).val('').focus();
+      }
+    });
+  })();
+
+  handleSelectConversation();
+
+  $('.conversation').first().click();
+  $('.conversations-container').height($(window).height());
+});
+
+function handleSelectConversation(){
+  $('.conversation').off('click').on('click', function(){
+    var conversationId = $(this).attr('id');
+    $(this)
+      .parent()
+        .find('.selected')
+          .removeClass('selected')
+          .find('.conversation-divider')
+            .show()
+            .end()
+          .end()
+        .end()
+      .addClass('selected')
+      .find('.conversation-divider')
+        .hide();
+
+    resetChatsArea();
+    if (conversationId != undefined) {
+      retrieveChatsForConversation(conversationId);
+    }
+
+    $('.chat-area .selected-participant-background')
+      .find('.selected-participant-text')
+        .text($(this).attr('data-participant'))
+        .end()
+      .siblings('#target-participant')
+        .hide()
+        .end()
+      .show();
+    $('#send-chat')
+      .val('')
+      .parent()
+        .show()
+        .end()
+      .focus();
+  });
+}
+
+function resetChatsArea(){
+  $('.chat-area')
+    .find('.selected-participant-background')
+      .find('.selected-participant-text')
+        .val('')
+        .end()
+      .hide()
+      .end()
+    .find('#target-participant')
+      .val('')
+      .show()
+      .focus()
+      .end()
+    .find('.chats')
+      .empty()
+      .end()
+    .find('.chat-input-area')
+      .find('#send-chat')
+        .val('')
+        .end()
+      .hide()
+      .end()
+    .show();
+}
+
+function selectConversationWithParticipant(username){
+  var $conversation = $('*[data-participant="' + username +'"]');
+  if ($conversation.length == 0) {
+    var newConversationHtml = '<div class="conversation" data-participant="' + username + '">\
+      <div class="avatar"><img src="https://scontent-iad3-1.xx.fbcdn.net/v/t1.0-1/c29.0.100.100/p100x100/1379841_10150004552801901_469209496895221757_n.jpg?oh=f785ec8ab10b6ffdc50dafdeb2edbda3&amp;oe=582DE024" width="50" height="50" alt="" class="img"></div>\
+      <span>' + username + '</span><div class="conversation-divider"></div></div>';
+    $('.conversations-container').prepend(newConversationHtml);
+    $conversation = $('*[data-participant="' + username +'"]');
+    handleSelectConversation();
+  }
+  $conversation.click();
+}
+
+function retrieveChatsForConversation(conversationId){
+  var url = '{% url "chats.views.get_chats" %}';
+  var chatsHtml = '';
+  $.get(url, {conversation_id: conversationId}, function(response){
+    if (response.status == 'ok') {
+      for (chat of response.chats) {
+        chatsHtml += '<div class="chat-container">';
+        if (chat.sender == '{{current_user}}') {
+          chatsHtml += '<div class="chat to-user">';
+        }
+        else {
+          chatsHtml += '<div class="chat from-user">';
+        }
+        chatsHtml += '<span>' + chat.content + '</span></div></div>';
+      }
+      if (chatsHtml != '') {
+        var $chats = $('.chats');
+        $chats.html(chatsHtml).scrollTop($chats[0].scrollHeight);
+      }
+    }
+    else {
+      alert('An error has occurred.')
+    }
+  });
+}
+
+function postChat(conversationId, chatContent) {
+  var url = '{% url "chats.views.post_chat" %}';
+  var data = {
+    chat_content: chatContent,
+    receiver: $('.selected').attr('data-participant'),
+    csrfmiddlewaretoken: '{{ csrf_token }}'
+  }
+
+  if (conversationId != undefined) {
+    data.conversation_id = conversationId;
+  }
+
+  $.post(url, data, function(response){
+    if (response.status == 'ok') {
+      if (conversationId == undefined) {
+        $('.selected').attr('id', response.conversation_id)
+      }
+    }
+    else {
+      $('.chat-container').last().remove();
+      alert('An error has occurred.');
+    }
+  });
+}
+
+</script>
+
+</body>
+</html>
