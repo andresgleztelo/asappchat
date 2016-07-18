@@ -92,7 +92,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'asappchat.wsgi.application'
+WSGI_APPLICATION = 'asappchat.wsgi_django.application'
 
 
 # Database
