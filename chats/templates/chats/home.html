@@ -337,6 +337,8 @@ $(function(){
         ws.send(msg);
     }
   })();
+
+  adjustDimensionsForElements();
 });
 
 function handleSelectConversation(){
@@ -484,6 +486,12 @@ function handleWebSocketMessage(conversation_id, chat_content, sender) {
     var $chats = $('.chats');
     $chats.append(chatBubbleHtml).scrollTop($chats[0].scrollHeight);
   }
+}
+
+function adjustDimensionsForElements(){
+  var $chats = $('.chats');
+  var maxHeight = $(window).height() - $('.chat-area-heading').height() - $('.chat-input-area').height();
+  $chats.css('max-height', maxHeight + 'px');
 }
 
 </script>
