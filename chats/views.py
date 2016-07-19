@@ -5,6 +5,8 @@ from django.http import HttpResponse, JsonResponse
 from chats.models import Chat, Conversation
 from users.models import ChatUser
 from asappchat.utils import generate_random_str
+from ws4redis.publisher import RedisPublisher
+from ws4redis.redis_store import RedisMessage
 import string
 
 @login_required
@@ -38,7 +40,7 @@ def post_chat(request):
     sender = request.user.chat_user
 
     if request.POST.get('conversation_id'):
-        conversation = Conversation.objects.get(identifier=request.POST['conversation_id'])
+        conversation = Conversation.objects.select_related('participants').get(identifier=request.POST['conversation_id'])
     else:
         new_conversation_identifier = generate_random_str(length=10, allowed_chars=string.ascii_uppercase + string.digits)
         while Conversation.objects.filter(identifier=new_conversation_identifier).exists():
@@ -56,6 +58,7 @@ def post_chat(request):
 
     content = request.POST['chat_content']
     Chat.objects.create(sender=sender, conversation=conversation, content=content)
+    send_websocket_notification_to_participants(conversation, content)
 
     return JsonResponse({'status': 'ok', 'conversation_id': conversation.identifier})
 
@@ -73,3 +76,9 @@ def _get_home_page_contex(user, conversations):
             'conversation_id': conversation.identifier})
 
     return Context({'conversations': conversations_info_list, 'current_user': user.identifier})
+
+def send_websocket_notification_to_participants(conversation, chat_content):
+    participants = [partipant.identifier for partipant in conversation.participants.all()]
+    redis_publisher = RedisPublisher(facility='chat_notification', users=participants)
+    message = RedisMessage(chat_content)
+    redis_publisher.publish_message(message)
