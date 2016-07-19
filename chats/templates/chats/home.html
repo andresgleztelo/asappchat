@@ -324,6 +324,8 @@ $(function(){
     };
     ws.onmessage = function(e) {
         console.log("Received: " + e.data);
+        var receivedData = JSON.parse(e.data);
+        handleWebSocketMessage(receivedData.conversation_id, receivedData.chat_content, receivedData.sender);
     };
     ws.onerror = function(e) {
         console.error(e);
@@ -403,14 +405,19 @@ function resetChatsArea(){
 function selectConversationWithParticipant(username){
   var $conversation = $('*[data-participant="' + username +'"]');
   if ($conversation.length == 0) {
-    var newConversationHtml = '<div class="conversation" data-participant="' + username + '">\
-      <div class="avatar"><img src="https://scontent-iad3-1.xx.fbcdn.net/v/t1.0-1/c29.0.100.100/p100x100/1379841_10150004552801901_469209496895221757_n.jpg?oh=f785ec8ab10b6ffdc50dafdeb2edbda3&amp;oe=582DE024" width="50" height="50" alt="" class="img"></div>\
-      <span>' + username + '</span><div class="conversation-divider"></div></div>';
-    $('.conversations-container').prepend(newConversationHtml);
-    $conversation = $('*[data-participant="' + username +'"]');
-    handleSelectConversation();
+    $conversation = addNewConversationWithParticipant(username);
   }
   $conversation.click();
+}
+
+function addNewConversationWithParticipant(participant_username) {
+  var newConversationHtml = '<div class="conversation" data-participant="' + username + '">\
+    <div class="avatar"><img src="https://scontent-iad3-1.xx.fbcdn.net/v/t1.0-1/c29.0.100.100/p100x100/1379841_10150004552801901_469209496895221757_n.jpg?oh=f785ec8ab10b6ffdc50dafdeb2edbda3&amp;oe=582DE024" width="50" height="50" alt="" class="img"></div>\
+    <span>' + username + '</span><div class="conversation-divider"></div></div>';
+  $('.conversations-container').prepend(newConversationHtml);
+  handleSelectConversation();
+
+  return $('*[data-participant="' + username +'"]');
 }
 
 function retrieveChatsForConversation(conversationId){
@@ -462,6 +469,21 @@ function postChat(conversationId, chatContent) {
       alert('An error has occurred.');
     }
   });
+}
+
+function handleWebSocketMessage(conversation_id, chat_content, sender) {
+  $conversation = $('#' + conversation_id);
+  if ($conversation.length == 0) {
+    $conversation = addNewConversationWithParticipant(sender);
+    $conversation.attr('id', conversation_id);
+    $conversation.click();
+  }
+  else if ($conversation.hasClass('selected')) {
+    var chatBubbleHtml = '<div class="chat-container"><div class="chat to-user"><span>' + chat_content +
+                         '</span></div></div>';
+    var $chats = $('.chats');
+    $chats.append(chatBubbleHtml).scrollTop($chats[0].scrollHeight);
+  }
 }
 
 </script>

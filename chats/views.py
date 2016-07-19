@@ -7,6 +7,7 @@ from users.models import ChatUser
 from asappchat.utils import generate_random_str
 from ws4redis.publisher import RedisPublisher
 from ws4redis.redis_store import RedisMessage
+import json
 import string
 
 @login_required
@@ -80,5 +81,10 @@ def _get_home_page_contex(user, conversations):
 def send_websocket_notification_to_participants(conversation, chat_content, sender):
     participants = conversation.get_other_participants(sender)
     redis_publisher = RedisPublisher(facility='chat_notification', users=participants)
-    message = RedisMessage(chat_content)
+    message_dict = {
+        'conversation_id': conversation.identifier,
+        'chat_content': chat_content,
+        'sender': sender.identifier
+    }
+    message = RedisMessage(json.dumps(message_dict))
     redis_publisher.publish_message(message)
