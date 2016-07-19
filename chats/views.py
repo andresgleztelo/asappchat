@@ -58,7 +58,7 @@ def post_chat(request):
 
     content = request.POST['chat_content']
     Chat.objects.create(sender=sender, conversation=conversation, content=content)
-    send_websocket_notification_to_participants(conversation, content)
+    send_websocket_notification_to_participants(conversation, content, sender)
 
     return JsonResponse({'status': 'ok', 'conversation_id': conversation.identifier})
 
@@ -77,8 +77,11 @@ def _get_home_page_contex(user, conversations):
 
     return Context({'conversations': conversations_info_list, 'current_user': user.identifier})
 
-def send_websocket_notification_to_participants(conversation, chat_content):
+def send_websocket_notification_to_participants(conversation, chat_content, sender):
     participants = [partipant.identifier for partipant in conversation.participants.all()]
     redis_publisher = RedisPublisher(facility='chat_notification', users=participants)
-    message = RedisMessage(chat_content)
+    message = RedisMessage({
+        'chat_content': chat_content,
+        'sender': sender.identifier
+    })
     redis_publisher.publish_message(message)
