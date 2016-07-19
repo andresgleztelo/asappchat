@@ -490,7 +490,7 @@ function handleWebSocketMessage(conversation_id, chat_content, sender) {
 
 function adjustDimensionsForElements(){
   var $chats = $('.chats');
-  var maxHeight = $(window).height() - $('.chat-area-heading').height() - $('.chat-input-area').height();
+  var maxHeight = $(window).height() - $('.chat-area-heading').outerHeight(true) - $('.chat-input-area').outerHeight(true) - 50;
   $chats.css('max-height', maxHeight + 'px');
 }
 
