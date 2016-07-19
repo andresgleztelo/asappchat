@@ -206,3 +206,15 @@ input {
   right: 13px;
   text-decoration: none;
 }
+
+.send-btn {
+  position: absolute;
+  top: 21px;
+  right: 17px;
+  color: #0084ff;
+  font-size: 16px;
+  max-width: 80px;
+  cursor: pointer;
+  font-family: "Helvetica Neue", "Segoe UI", Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}

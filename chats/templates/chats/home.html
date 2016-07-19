@@ -51,6 +51,7 @@
   </div>
   <div class="chat-input-area">
     <input id="send-chat" class="chat-content-input" type="text" placeholder="Type a message..." name="chat-content" />
+    <div class="send-btn">Send</div>
   </div>
 </div>
 
@@ -91,18 +92,25 @@ $(function(){
   (function handleSendChat(){
     $('#send-chat').off('keypress').on('keypress', function(e){
       if(e.which == 13 && $(this).val().trim() != '') {
-        var content = $(this).val();
-        var chatBubbleHtml = '<div class="chat-container"><div class="chat to-user"><span>' + content +
-                             '</span></div></div>';
-
-        var $chats = $('.chats');
-        $chats.append(chatBubbleHtml).scrollTop($chats[0].scrollHeight);
-
-        postChat($('.selected').attr('id'), content);
-
-        $(this).val('').focus();
+        addnewChat($(this));
       }
     });
+    $('#send-chat').siblings('.send-btn').off('click').on('click', function(){
+      addnewChat($(this).siblings('#send-chat'));
+    });
+
+    function addnewChat($input){
+      var content = $input.val();
+      var chatBubbleHtml = '<div class="chat-container"><div class="chat to-user"><span>' + content +
+                           '</span></div></div>';
+
+      var $chats = $('.chats');
+      $chats.append(chatBubbleHtml).scrollTop($chats[0].scrollHeight);
+
+      postChat($('.selected').attr('id'), content);
+
+      $input.val('').focus();
+    }
   })();
 
   handleSelectConversation();
