@@ -3,6 +3,8 @@ from django.utils import timezone
 
 
 class Conversation(models.Model):
+    """ A conversation is composed of participants and chats. It can be either archived
+        or active. """
     # The intermediary join table that represents this field will by default have an index
     # for all foreign keys.
     participants = models.ManyToManyField('users.ChatUser', related_name='conversations')
@@ -18,6 +20,8 @@ class Conversation(models.Model):
 
 
 class Chat(models.Model):
+    """ A chat belongs to a conversation and a sender user. The content of the chat can be
+        of type text, audio, or video """
     CONTENT_CHOICES = (
         ('TEXT', 'A text chat.'),
         ('AUDIO', 'An audio chat.'),

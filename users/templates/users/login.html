@@ -1,72 +1,11 @@
+{% load staticfiles %}
+
 <!DOCTYPE html>
 <html>
 <head>
-<style>
 
-html, body {
-  height: 100%;
-  margin: 0px;
-}
-
-h1 {
-  color: rgba(0, 0, 0, 1);
-  font-size: 40px;
-  font-weight: 300;
-  font-family: "Helvetica Neue", "Segoe UI", Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  margin: 200px auto 20px;
-  text-align: center;
-}
-
-div  {
-  color: rgba(0, 0, 0, 1);
-  font-size: 16px;
-  font-family: "Helvetica Neue", "Segoe UI", Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  font-weight: 300;
-  line-height: 1.2;
-  margin-bottom: 36px;
-  text-align: center;
-}
-
-.username-field {
-  border: 1px solid rgba(0, 0, 0, .20);
-  border-radius: 4px;
-  color: rgba(0, 0, 0, 1);
-  display: block;
-  font-family: "Helvetica Neue", "Segoe UI", Helvetica, Arial, sans-serif;
-  font-size: 17px;
-  height: 42px;
-  margin-bottom: 12px;
-  margin-left: auto;
-  margin-right: auto;
-  padding: 0 16px;
-  width: 286px;
-  -webkit-font-smoothing: antialiased;
-}
-
-.signin-btn {
-  background: #fff;
-  color: #0084ff;
-  font-size: 24px;
-  font-weight: normal;
-  margin-top: 24px;
-  align-items: center;
-  border: none;
-  box-shadow: none;
-  display: flex;
-  margin-left: auto;
-  margin-right: auto;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-shadow: none;
-  white-space: nowrap;
-  font-family: "Helvetica Neue", "Segoe UI", Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  cursor: pointer;
-}
-
-</style>
+<!-- Styles -->
+<link href="{% static 'users/styles.css' %}" rel="stylesheet">
 
 </head>
 <body>
@@ -74,6 +13,9 @@ div  {
 <h1 class="login-heading">Chats</h1>
 <div>Sign in with your username.</div>
 <form action="{% url 'users.views.log_user_in' %}" method="post">
+  {% if invalid_login %}
+  <div class="error-msg">Invalid username. Please try again.</div>
+  {% endif %}
   <input type="text" class="username-field" name="username" placeholder="Username">
 
   {% csrf_token %}

@@ -1,222 +1,15 @@
+{% load staticfiles %}
+
 <!DOCTYPE html>
 <html>
 <head>
 
+<!-- Styles -->
+<link href="{% static 'chats/styles.css' %}" rel="stylesheet">
+
+<!-- Scripts -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 
-<style>
-
-html, body {
-  height: 100%;
-  overflow: auto;
-  overflow-y: hidden;
-  margin: 0px;
-}
-.conversations {
-  width: 390px;
-  min-height: 100%;
-  border-right: 1px solid #bcbcbc;
-  overflow: auto;
-  float: left;
-}
-.conversations-heading, .chat-area-heading {
-  text-align: center;
-  margin-top: 16px;
-  height: 43px;
-  border-bottom: 1px solid #e6e6e6;
-  position: relative;
-}
-.conversations-heading-text {
-  font-size: 20px;
-  font-weight: 500;
-  padding-top: 1px;
-}
-.compose-msg-icon {
-  background-image: url(https://static.xx.fbcdn.net/rsrc.php/v2/yW/r/egQiTHBJdiN.png);
-  background-repeat: no-repeat;
-  background-size: auto;
-  background-position: 0 -2142px;
-  height: 32px;
-  min-width: 32px;
-  width: 32px;
-  font-size: 14px;
-  position: absolute;
-  right: 10px;
-  top: -4px;
-  cursor: pointer;
-}
-
-.chat-area {
-  height: 100%;
-  width: 52%;
-  margin-left: 391px;
-  margin-top: -17px;
-  padding-top: 17px;
-  border-right: 1px solid #e6e6e6;
-  display: none;
-}
-.chat-area-heading {
-  text-align: left;
-  padding-left: 18px;
-}
-
-label {
-  color: #a1a1a1;
-  font-family: "Helvetica Neue", "Segoe UI", Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  line-height: 1.28;
-  overflow: auto;
-  text-rendering: optimizeLegibility;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-}
-input {
-  outline: 0;
-  -webkit-font-smoothing: antialiased;
-  font-weight: normal;
-  width: 274px;
-  font-family: "Helvetica Neue", "Segoe UI", Helvetica, Arial, sans-serif;
-  font-size: 15px;
-  line-height: 20px;
-  border: none;
-  display: inline-block;
-  margin: 0;
-  vertical-align: middle;
-  margin-top: -3px;
-  margin-left: 6px;
-  -webkit-font-smoothing: antialiased;
-}
-.sending-to {
-  margin-top: 16px;
-  padding-top: 3px;
-}
-
-.selected-participant-background {
-  background: #cbe6fe;
-  border-radius: 3px;
-  cursor: default;
-  line-height: 20px;
-  margin: 1px 3px 1px 2px;
-  padding: 2px 6px;
-  text-align: center;
-  display: none;
-}
-.selected-participant-text {
-  color: #0084ff;
-  font-size: 16px;
-  line-height: 20px;
-}
-
-.chat-input-area {
-  height: 60px;
-  border-top: 1px solid #e6e6e6;
-  position: fixed;
-  bottom: 0;
-  width: 52%;
-  display: none;
-}
-.chat-content-input {
-  margin: 20px 0px 0px 19px;
-  width: 83%;
-}
-
-.chats {
-  margin-top: 35px;
-  overflow: auto;
-  overflow-y: scroll;
-  max-height: 655px;
-}
-.chat-container {
-  overflow: auto;
-  margin-bottom: 14px;
-}
-.chat span {
-  font-family: "Helvetica Neue", "Segoe UI", Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  -webkit-font-smoothing: antialiased;
-  line-height: 1.28;
-  overflow: auto;
-  text-rendering: optimizeLegibility;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-}
-.chat {
-  padding: 10px;
-  border-radius: 20px;
-}
-.chat.to-user {
-  float: right;
-  margin: 0px 43px 10px 43px;
-  background-color: #0084ff;
-}
-.chat.to-user span {
-  color: #fff;
-}
-.chat.from-user {
-  float: left;
-  margin: 0px 43px 10px 43px;
-  background-color: #f1f0f0;
-}
-.chat.from-user span {
-  color: #000;
-}
-
-.conversations-container {
-  overflow-y: scroll;
-}
-.conversation {
-  text-align: center;
-  padding-top: 24px;
-  height: 49px;
-  position: relative;
-  cursor: pointer;
-}
-.conversation.selected {
-  background-color: #f3f3f3;
-}
-.avatar {
-  position: absolute;;
-  margin-top: -13px;
-  margin-left: 24px;
-}
-.avatar img {
-  border-radius: 50%;
-}
-.conversation-divider {
-  background-color: #e6e6e6;
-  height: 1px;
-  position: absolute;
-  bottom: 0px;
-  width: 92%;
-  left: 8%;
-}
-
-.logout {
-  background: #fff;
-  color: #0084ff;
-  font-size: 14px;
-  font-weight: normal;
-  align-items: center;
-  border: none;
-  box-shadow: none;
-  display: flex;
-  margin-left: auto;
-  margin-right: auto;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-shadow: none;
-  white-space: nowrap;
-  font-family: "Helvetica Neue", "Segoe UI", Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  cursor: pointer;
-  position: absolute;
-  top: 8px;
-  right: 13px;
-  text-decoration: none;
-}
-
-
-</style>
 </head>
 <body>
 
@@ -229,7 +22,7 @@ input {
   <div class="conversations-container">
     {% for conversation in conversations %}
     <div id="{{ conversation.conversation_id }}" class="conversation" data-participant="{{ conversation.username }}">
-      <div class="avatar"><img src="https://scontent-iad3-1.xx.fbcdn.net/v/t1.0-1/c29.0.100.100/p100x100/1379841_10150004552801901_469209496895221757_n.jpg?oh=f785ec8ab10b6ffdc50dafdeb2edbda3&amp;oe=582DE024" width="50" height="50" alt="" class="img"></div>
+      <div class="avatar"><img src="https://scontent-lga3-1.xx.fbcdn.net/v/t1.0-1/c29.0.100.100/p100x100/10645251_10150004552801937_4553731092814901385_n.jpg?oh=cd9b25e2191198602b9f2ba1c2949f15&oe=57F05925" width="50" height="50" alt="" class="img"></div>
       <span>{{ conversation.username }}</span>
       <div class="conversation-divider"></div>
     </div>
@@ -339,6 +132,9 @@ $(function(){
   })();
 
   adjustDimensionsForElements();
+  $(window).on('resize', function(){
+    adjustDimensionsForElements();
+  });
 });
 
 function handleSelectConversation(){

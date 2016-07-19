@@ -11,6 +11,10 @@ def get_login_page(request):
 
     template = loader.get_template('users/login.html')
     context = Context()
+
+    if request.session.pop('invalid_login', False):
+        context['invalid_login'] = True
+
     context.update(csrf(request))
     return HttpResponse(template.render(context))
 
@@ -24,7 +28,8 @@ def log_user_in(request):
         else:
             return HttpResponseBadRequest('Your account has been disabled')
     else:
-        return HttpResponseBadRequest('Invalid login')
+        request.session['invalid_login'] = True
+        return redirect('users.views.get_login_page')
 
 def log_user_out(request):
     logout(request)
