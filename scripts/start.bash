@@ -51,7 +51,7 @@ echo -n "Starting uwsgi instance 2 with ${num_processes:=$DEFAULT_NUM_PROCESSES}
       --env DJANGO_CONF_DIR=/home/ec2-user/conf \
       --master \
       --http-socket=127.0.0.1:8001 \
-      --gevent 1000
+      --gevent 1000 \
       --http-websockets \
       --processes=${num_processes:=$DEFAULT_NUM_PROCESSES} \
       --enable-threads \
