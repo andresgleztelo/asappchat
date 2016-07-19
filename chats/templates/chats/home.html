@@ -479,7 +479,7 @@ function handleWebSocketMessage(conversation_id, chat_content, sender) {
     $conversation.click();
   }
   else if ($conversation.hasClass('selected')) {
-    var chatBubbleHtml = '<div class="chat-container"><div class="chat to-user"><span>' + chat_content +
+    var chatBubbleHtml = '<div class="chat-container"><div class="chat from-user"><span>' + chat_content +
                          '</span></div></div>';
     var $chats = $('.chats');
     $chats.append(chatBubbleHtml).scrollTop($chats[0].scrollHeight);
