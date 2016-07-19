@@ -40,7 +40,7 @@ def post_chat(request):
     sender = request.user.chat_user
 
     if request.POST.get('conversation_id'):
-        conversation = Conversation.objects.select_related('participants').get(identifier=request.POST['conversation_id'])
+        conversation = Conversation.objects.prefetch_related('participants').get(identifier=request.POST['conversation_id'])
     else:
         new_conversation_identifier = generate_random_str(length=10, allowed_chars=string.ascii_uppercase + string.digits)
         while Conversation.objects.filter(identifier=new_conversation_identifier).exists():
@@ -78,10 +78,7 @@ def _get_home_page_contex(user, conversations):
     return Context({'conversations': conversations_info_list, 'current_user': user.identifier})
 
 def send_websocket_notification_to_participants(conversation, chat_content, sender):
-    participants = [partipant.identifier for partipant in conversation.participants.all()]
+    participants = conversation.get_other_participants(sender)
     redis_publisher = RedisPublisher(facility='chat_notification', users=participants)
-    message = RedisMessage({
-        'chat_content': chat_content,
-        'sender': sender.identifier
-    })
+    message = RedisMessage(chat_content)
     redis_publisher.publish_message(message)
