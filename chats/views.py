@@ -32,7 +32,7 @@ def get_chats(request):
 
     chats = []
     for chat in conversation.chats.all().order_by('created_at'):
-        chats.append({'sender': chat.sender.identifier, 'content': chat.content})
+        chats.append({'sender': chat.sender.identifier, 'content': chat.content, 'chat_id': chat.id})
 
     return JsonResponse({'status': 'ok', 'chats': chats})
 
@@ -58,10 +58,13 @@ def post_chat(request):
         JsonResponse({'status': 'fail', 'reason': 'You don\'t have permission'})
 
     content = request.POST['chat_content']
-    Chat.objects.create(sender=sender, conversation=conversation, content=content)
+    chat = Chat.objects.create(sender=sender, conversation=conversation, content=content)
     send_websocket_notification_to_participants(conversation, content, sender)
 
-    return JsonResponse({'status': 'ok', 'conversation_id': conversation.identifier})
+    return JsonResponse({
+        'status': 'ok',
+        'conversation_id': conversation.identifier,
+        'chat_id': chat.id})
 
 
 def _get_home_page_contex(user, conversations):

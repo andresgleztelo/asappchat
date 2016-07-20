@@ -126,7 +126,8 @@ $(function(){
     ws.onmessage = function(e) {
         console.log("Received: " + e.data);
         var receivedData = JSON.parse(e.data);
-        handleWebSocketMessage(receivedData.conversation_id, receivedData.chat_content, receivedData.sender);
+        handleWebSocketMessage(receivedData.conversation_id, receivedData.chat_id,
+                               receivedData.chat_content, receivedData.sender);
     };
     ws.onerror = function(e) {
         console.error(e);
@@ -232,7 +233,7 @@ function retrieveChatsForConversation(conversationId){
   $.get(url, {conversation_id: conversationId}, function(response){
     if (response.status == 'ok') {
       for (chat of response.chats) {
-        chatsHtml += '<div class="chat-container">';
+        chatsHtml += '<div id="' + chat.chat_id + '" class="chat-container">';
         if (chat.sender == '{{current_user}}') {
           chatsHtml += '<div class="chat to-user">';
         }
@@ -269,6 +270,7 @@ function postChat(conversationId, chatContent) {
       if (conversationId == undefined) {
         $('.selected').attr('id', response.conversation_id)
       }
+      $('.chat-container').last().attr('id', response.chat_id);
     }
     else {
       $('.chat-container').last().remove();
@@ -277,15 +279,15 @@ function postChat(conversationId, chatContent) {
   });
 }
 
-function handleWebSocketMessage(conversation_id, chat_content, sender) {
+function handleWebSocketMessage(conversation_id, chat_id, chat_content, sender) {
   $conversation = $('#' + conversation_id);
   if ($conversation.length == 0) {
     $conversation = addNewConversationWithParticipant(sender);
     $conversation.attr('id', conversation_id);
     $conversation.click();
   }
-  else if ($conversation.hasClass('selected')) {
-    var chatBubbleHtml = '<div class="chat-container"><div class="chat from-user"><span>' + chat_content +
+  else if ($conversation.hasClass('selected') && $('#' + chat_id).length == 0) {
+    var chatBubbleHtml = '<div id="' + chat_id + '" class="chat-container"><div class="chat from-user"><span>' + chat_content +
                          '</span></div></div>';
     var $chats = $('.chats');
     $chats.append(chatBubbleHtml).scrollTop($chats[0].scrollHeight);
