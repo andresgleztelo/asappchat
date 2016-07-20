@@ -109,6 +109,29 @@ DATABASES = {
     }
 }
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'detailed': {
+            'format': '[%(asctime)s] [%(levelname)s %(name)s] [func %(funcName)s line %(lineno)s]: %(message)s'
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/var/log/uwsgi/asappchat/debug.log',
+            'formatter': 'detailed',
+        },
+    },
+    'loggers': {
+        'django': {'handlers': ['file'], 'level': 'DEBUG', 'propagate': True},
+        'chats': {'handlers': ['file'], 'level': 'DEBUG', 'propagate': True},
+        'users': {'handlers': ['file'], 'level': 'DEBUG', 'propagate': True},
+    },
+}
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/

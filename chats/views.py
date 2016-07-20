@@ -8,31 +8,43 @@ from asappchat.utils import generate_random_str
 from ws4redis.publisher import RedisPublisher
 from ws4redis.redis_store import RedisMessage
 import json
+import logging
 import string
+
+logger = logging.getLogger('chats.views')
 
 @login_required
 def home(request):
     user = request.user.chat_user
-    conversations = user.conversations.filter(archived=False) \
-                        .prefetch_related('participants').order_by('-updated_at')
+    try:
+        conversations = user.conversations.filter(archived=False) \
+                            .prefetch_related('participants').order_by('-updated_at')
 
-    template = loader.get_template('chats/home.html')
-    context = _get_home_page_contex(user, conversations)
-    context.update(csrf(request))
+        template = loader.get_template('chats/home.html')
+        context = _get_home_page_contex(user, conversations)
+        context.update(csrf(request))
+    except:
+        logger.exception('Error fetching conversations for chat user {}'.format(user.id))
+        raise
+
     return HttpResponse(template.render(context))
 
 @login_required
 def get_chats(request):
-    conversation = Conversation.objects.prefetch_related('chats__sender').get(
-                       identifier=request.GET['conversation_id'])
+    try:
+        conversation = Conversation.objects.prefetch_related('chats__sender').get(
+                           identifier=request.GET['conversation_id'])
 
-    # Could use a permission class decorator instead.
-    if request.user.chat_user.is_a_participant(conversation) is False:
-        JsonResponse({'status': 'fail', 'reason': 'You don\'t have permission'})
+        # Could use a permission class decorator instead.
+        if request.user.chat_user.is_a_participant(conversation) is False:
+            JsonResponse({'status': 'fail', 'reason': 'You don\'t have permission'})
 
-    chats = []
-    for chat in conversation.chats.all().order_by('created_at'):
-        chats.append({'sender': chat.sender.identifier, 'content': chat.content, 'chat_id': chat.id})
+        chats = []
+        for chat in conversation.chats.all().order_by('created_at'):
+            chats.append({'sender': chat.sender.identifier, 'content': chat.content, 'chat_id': chat.id})
+    except:
+        logger.exception('Error getting chats for chat user {}'.format(request.user.chat_user.id))
+        raise
 
     return JsonResponse({'status': 'ok', 'chats': chats})
 
@@ -40,26 +52,30 @@ def get_chats(request):
 def post_chat(request):
     sender = request.user.chat_user
 
-    if request.POST.get('conversation_id'):
-        conversation = Conversation.objects.prefetch_related('participants').get(identifier=request.POST['conversation_id'])
-    else:
-        new_conversation_identifier = generate_random_str(length=10, allowed_chars=string.ascii_uppercase + string.digits)
-        while Conversation.objects.filter(identifier=new_conversation_identifier).exists():
-            new_conversation_identifier = generate_random_str(length=8, allowed_chars=string.ascii_uppercase + string.digits)
+    try:
+        if request.POST.get('conversation_id'):
+            conversation = Conversation.objects.prefetch_related('participants').get(identifier=request.POST['conversation_id'])
+        else:
+            new_conversation_identifier = generate_random_str(length=10, allowed_chars=string.ascii_uppercase + string.digits)
+            while Conversation.objects.filter(identifier=new_conversation_identifier).exists():
+                new_conversation_identifier = generate_random_str(length=8, allowed_chars=string.ascii_uppercase + string.digits)
 
-        conversation = Conversation.objects.create(identifier=new_conversation_identifier)
+            conversation = Conversation.objects.create(identifier=new_conversation_identifier)
 
-        target_participant = ChatUser.objects.get(identifier=request.POST['receiver'])
-        conversation.participants.add(sender)
-        conversation.participants.add(target_participant)
+            target_participant = ChatUser.objects.get(identifier=request.POST['receiver'])
+            conversation.participants.add(sender)
+            conversation.participants.add(target_participant)
 
-    # Could use a permission class decorator instead.
-    if sender.is_a_participant(conversation) is False:
-        JsonResponse({'status': 'fail', 'reason': 'You don\'t have permission'})
+        # Could use a permission class decorator instead.
+        if sender.is_a_participant(conversation) is False:
+            JsonResponse({'status': 'fail', 'reason': 'You don\'t have permission'})
 
-    content = request.POST['chat_content']
-    chat = Chat.objects.create(sender=sender, conversation=conversation, content=content)
-    send_websocket_notification_to_participants(conversation, chat, sender)
+        content = request.POST['chat_content']
+        chat = Chat.objects.create(sender=sender, conversation=conversation, content=content)
+        send_websocket_notification_to_participants(conversation, chat, sender)
+    except:
+        logger.exception('Error posting chat from user {}'.format(sender.id))
+        raise
 
     return JsonResponse({
         'status': 'ok',
@@ -82,13 +98,17 @@ def _get_home_page_contex(user, conversations):
     return Context({'conversations': conversations_info_list, 'current_user': user.identifier})
 
 def send_websocket_notification_to_participants(conversation, chat, sender):
-    participants = conversation.get_other_participants(sender)
-    redis_publisher = RedisPublisher(facility='chat_notification', users=participants)
-    message_dict = {
-        'conversation_id': conversation.identifier,
-        'chat_id': chat.id,
-        'chat_content': chat.content,
-        'sender': sender.identifier
-    }
-    message = RedisMessage(json.dumps(message_dict))
-    redis_publisher.publish_message(message)
+    try:
+        participants = conversation.get_other_participants(sender)
+        redis_publisher = RedisPublisher(facility='chat_notification', users=participants)
+        message_dict = {
+            'conversation_id': conversation.identifier,
+            'chat_id': chat.id,
+            'chat_content': chat.content,
+            'sender': sender.identifier
+        }
+        message = RedisMessage(json.dumps(message_dict))
+        redis_publisher.publish_message(message)
+    except:
+        logger.exception('Error sending websocket notification for conversation: {}'.format(conversation.id))
+        raise
