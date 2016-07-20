@@ -4,12 +4,10 @@ from django.template import Context, loader
 from django.http import HttpResponse, JsonResponse
 from chats.models import Chat, Conversation
 from users.models import ChatUser
-from asappchat.utils import generate_random_str
 from ws4redis.publisher import RedisPublisher
 from ws4redis.redis_store import RedisMessage
 import json
 import logging
-import string
 
 logger = logging.getLogger('chats.views')
 
@@ -56,11 +54,7 @@ def post_chat(request):
         if request.POST.get('conversation_id'):
             conversation = Conversation.objects.prefetch_related('participants').get(identifier=request.POST['conversation_id'])
         else:
-            new_conversation_identifier = generate_random_str(length=10, allowed_chars=string.ascii_uppercase + string.digits)
-            while Conversation.objects.filter(identifier=new_conversation_identifier).exists():
-                new_conversation_identifier = generate_random_str(length=8, allowed_chars=string.ascii_uppercase + string.digits)
-
-            conversation = Conversation.objects.create(identifier=new_conversation_identifier)
+            conversation = Conversation.objects.create_new_conversation()
 
             target_participant = ChatUser.objects.get(identifier=request.POST['receiver'])
             conversation.participants.add(sender)

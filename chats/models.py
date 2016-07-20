@@ -1,5 +1,16 @@
 from django.db import models
 from django.utils import timezone
+from asappchat.utils import generate_random_str
+import string
+
+
+class ConversationManager(models.Manager):
+    def create_new_conversation(self):
+        new_conversation_identifier = generate_random_str(length=10, allowed_chars=string.ascii_uppercase + string.digits)
+        while Conversation.objects.filter(identifier=new_conversation_identifier).exists():
+            new_conversation_identifier = generate_random_str(length=10, allowed_chars=string.ascii_uppercase + string.digits)
+
+        return self.create(identifier=new_conversation_identifier)
 
 
 class Conversation(models.Model):
@@ -14,6 +25,8 @@ class Conversation(models.Model):
 
     created_at = models.DateTimeField(null=True, default=timezone.now)
     updated_at = models.DateTimeField(null=True, auto_now=True)
+
+    objects = ConversationManager()
 
     def get_other_participants(self, participant):
         return [user for user in self.participants.all() if user.identifier != participant.identifier]
